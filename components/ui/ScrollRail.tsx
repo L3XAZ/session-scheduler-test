@@ -1,48 +1,46 @@
 'use client';
 
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import ChevronButton from './ChevronButton';
 
 interface ScrollRailProps {
     children: React.ReactNode;
-    itemWidth?: number;
-    showArrows?: boolean;
 }
 
-export default function ScrollRail({
-    children,
-    itemWidth = 72,
-    showArrows = true,
-}: ScrollRailProps) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [atStart, setAtStart] = useState(true);
-    const [atEnd, setAtEnd] = useState(false);
+export default function ScrollRail({ children }: ScrollRailProps) {
+    const ref = useRef<HTMLDivElement>(null);
 
-    const updateEdges = () => {
-        const el = containerRef.current;
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+
+    const updateScrollState = () => {
+        const el = ref.current;
         if (!el) return;
 
-        const max = el.scrollWidth - el.clientWidth;
-
-        setAtStart(el.scrollLeft <= 1);
-        setAtEnd(el.scrollLeft >= max - 1);
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        setCanScrollLeft(el.scrollLeft > 1);
+        setCanScrollRight(el.scrollLeft < maxScroll - 1);
     };
 
     useLayoutEffect(() => {
-        const el = containerRef.current;
+        const el = ref.current;
         if (!el) return;
 
-        updateEdges();
+        updateScrollState();
+        el.addEventListener('scroll', updateScrollState);
+        window.addEventListener('resize', updateScrollState);
 
-        el.addEventListener('scroll', updateEdges);
-        return () => el.removeEventListener('scroll', updateEdges);
+        return () => {
+            el.removeEventListener('scroll', updateScrollState);
+            window.removeEventListener('resize', updateScrollState);
+        };
     }, []);
 
-    const scrollByStep = (dir: 'left' | 'right') => {
-        const el = containerRef.current;
+    const scroll = (dir: 'left' | 'right') => {
+        const el = ref.current;
         if (!el) return;
 
-        const amount = itemWidth * 2.2;
+        const amount = el.clientWidth * 0.5;
         el.scrollBy({
             left: dir === 'left' ? -amount : amount,
             behavior: 'smooth',
@@ -51,44 +49,42 @@ export default function ScrollRail({
 
     return (
         <div className="relative flex w-full items-center">
-            {!atStart && (
-                <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-[24px] bg-gradient-to-r from-white to-transparent" />
-            )}
-
-            {showArrows && (
-                <div className="z-20 mr-1 hidden md:flex">
-                    <ChevronButton
-                        direction="left"
-                        disabled={atStart}
-                        onClick={() => scrollByStep('left')}
-                    />
-                </div>
-            )}
-
-            <div
-                ref={containerRef}
-                className="scroll-hide flex w-full gap-3 overflow-y-hidden overflow-x-scroll scroll-smooth py-1 font-poppins"
-                onWheel={(e) => {
-                    if (!containerRef.current) return;
-                    containerRef.current.scrollLeft += e.deltaY * 1.1;
-                }}
-            >
-                {children}
+            <div className="relative z-30 mr-6 hidden md:flex">
+                <ChevronButton
+                    direction="left"
+                    disabled={!canScrollLeft}
+                    onClick={() => scroll('left')}
+                />
             </div>
 
-            {!atEnd && (
-                <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-[24px] bg-gradient-to-l from-white to-transparent" />
-            )}
+            <div className="relative w-full overflow-hidden">
+                {canScrollLeft && (
+                    <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-[40px] bg-gradient-to-r from-white/85 via-white/40 to-transparent md:w-[60px]" />
+                )}
 
-            {showArrows && (
-                <div className="z-20 ml-1 hidden md:flex">
-                    <ChevronButton
-                        direction="right"
-                        disabled={atEnd}
-                        onClick={() => scrollByStep('right')}
-                    />
+                <div
+                    ref={ref}
+                    className="scroll-hide flex w-full gap-2 overflow-x-auto py-1"
+                    onWheel={(e) => {
+                        if (!ref.current) return;
+                        ref.current.scrollLeft += e.deltaY * 0.7;
+                    }}
+                >
+                    {children}
                 </div>
-            )}
+
+                {canScrollRight && (
+                    <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-[40px] bg-gradient-to-l from-white/85 via-white/40 to-transparent md:w-[60px]" />
+                )}
+            </div>
+
+            <div className="relative z-30 ml-6 hidden md:flex">
+                <ChevronButton
+                    direction="right"
+                    disabled={!canScrollRight}
+                    onClick={() => scroll('right')}
+                />
+            </div>
         </div>
     );
 }

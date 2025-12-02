@@ -7,16 +7,7 @@ import { CLOCK_ICON, STYLIST_IMG } from '../constants';
 
 export default function MobileHeader() {
     return (
-        <header className="relative h-[486px] overflow-hidden px-5 pt-10 font-poppins text-white">
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute left-[-120px] top-[-180px] h-[392px] w-[392px] rounded-full bg-[#944700] blur-[103px]"
-            />
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute left-[-231px] top-[150px] h-[473px] w-[473px] rounded-full bg-[#944700] blur-[103px]"
-            />
-
+        <header className="mobile-header-condensed relative h-[486px] overflow-hidden px-5 pt-10 font-poppins text-white">
             <div className="absolute right-[-10px] top-[55px] z-10">
                 <div className="relative h-[320px] w-[235px]">
                     <CircleAccent

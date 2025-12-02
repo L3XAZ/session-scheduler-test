@@ -1,22 +1,21 @@
 'use client';
 
-interface TimePillProps {
+type Props = {
     time: string;
     selected?: boolean;
-}
+};
 
-export default function TimePill({ time, selected }: TimePillProps) {
+export default function TimePill({ time, selected }: Props) {
     return (
         <button
-            type="button"
             className={[
-                'flex h-10 min-w-[88px] items-center justify-center rounded-full border px-4 text-sm transition',
+                'inline-flex h-[45px] w-[81px] flex-none items-center justify-center whitespace-nowrap rounded-pill border px-4',
                 selected
-                    ? 'border-[#F598A5] bg-[#FFEFF2] text-[#F14C6E]'
-                    : 'border-[#E8EBF4] bg-white text-[#16171B] hover:bg-[#F7F7FC]',
+                    ? 'bg-state-selectedBg border-state-selectedBorder text-state-selectedText'
+                    : 'border-border-subtle bg-white text-text-primary',
             ].join(' ')}
         >
-            {time}
+            <span className="text-timePill font-normal">{time}</span>
         </button>
     );
 }

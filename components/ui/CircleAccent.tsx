@@ -1,16 +1,20 @@
 'use client';
 
-interface CircleAccentProps {
+type Props = {
     size?: number;
     strokeWidth?: number;
     className?: string;
-}
+    fillColor?: string;
+    strokeColor?: string;
+};
 
 export default function CircleAccent({
     size = 301,
     strokeWidth = 4,
     className,
-}: CircleAccentProps) {
+    fillColor = '#AD5707',
+    strokeColor = '#FFAD32',
+}: Props) {
     const radius = (size - strokeWidth) / 2;
 
     return (
@@ -19,8 +23,8 @@ export default function CircleAccent({
                 cx={size / 2}
                 cy={size / 2}
                 r={radius}
-                fill="#AD5707"
-                stroke="#FFAD32"
+                fill={fillColor}
+                stroke={strokeColor}
                 strokeWidth={strokeWidth}
             />
         </svg>

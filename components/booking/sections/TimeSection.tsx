@@ -9,6 +9,12 @@ export default function TimeSection() {
             <TimePill time="1:30 PM" />
             <TimePill time="1:45 PM" />
             <TimePill time="2:00 PM" />
+            <TimePill time="1:30 PM" />
+            <TimePill time="1:45 PM" />
+            <TimePill time="2:00 PM" />
+            <TimePill time="1:30 PM" />
+            <TimePill time="1:45 PM" />
+            <TimePill time="2:00 PM" />
         </ScrollRail>
     );
 }

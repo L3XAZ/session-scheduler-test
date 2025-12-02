@@ -18,3 +18,25 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+@media (max-height: 800px) {
+    .mobile-header-condensed {
+        height: 460px;
+    }
+}
+
+@media (max-height: 700px) {
+    .mobile-header-condensed {
+        height: 440px;
+    }
+}
+
+@media (max-height: 630px) {
+    .mobile-header-condensed {
+        height: 420px;
+    }
+
+    .hide-desktop-on-small-height {
+        display: none;
+    }
+}

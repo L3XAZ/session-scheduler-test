@@ -2,32 +2,32 @@
 
 import Image from 'next/image';
 
-interface ChevronButtonProps {
-    direction?: 'left' | 'right';
-    onClick?: () => void;
+type Props = {
+    direction: 'left' | 'right';
+    onClick: () => void;
     disabled?: boolean;
-}
+};
 
-export default function ChevronButton({
-    direction = 'right',
-    onClick,
-    disabled,
-}: ChevronButtonProps) {
+export default function ChevronButton({ direction, onClick, disabled }: Props) {
     return (
         <button
             onClick={onClick}
             disabled={disabled}
             className={[
-                'flex h-8 w-8 items-center justify-center rounded-full bg-white transition',
-                disabled ? 'cursor-not-allowed opacity-30' : 'hover:opacity-90',
+                'flex items-center justify-center',
+                'h-8 w-8 rounded-full',
+                'select-none transition-opacity',
+                disabled ? 'cursor-default opacity-30' : 'opacity-80 hover:opacity-100',
             ].join(' ')}
         >
             <Image
-                src="/icons/chevron-right.png"
-                alt="chevron"
-                width={16}
-                height={16}
-                className={direction === 'left' ? 'rotate-180' : ''}
+                src="/icons/chevron-right.svg"
+                alt=""
+                width={10}
+                height={18}
+                className={
+                    direction === 'left' ? 'pointer-events-none rotate-180' : 'pointer-events-none'
+                }
             />
         </button>
     );
