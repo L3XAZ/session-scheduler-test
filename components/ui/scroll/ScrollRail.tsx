@@ -1,16 +1,12 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, ReactNode, useCallback, useEffect, useImperativeHandle } from 'react';
 import ChevronButton from '@/components/ui/buttons/ChevronButton';
-
-export type RailLayoutState = {
-    scrollLeft: number;
-    containerWidth: number;
-    childrenRects: { x: number; width: number }[];
-};
+import type { RailLayoutState } from '@/hooks/useScrollRail';
+import { useScrollRail } from '@/hooks/useScrollRail';
 
 interface ScrollRailProps {
-    children: React.ReactNode;
+    children: ReactNode;
     onLayoutChange?: (data: RailLayoutState) => void;
 }
 
@@ -20,99 +16,44 @@ export type ScrollRailHandle = {
 
 const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
     ({ children, onLayoutChange }, ref) => {
-        const scrollRef = useRef<HTMLDivElement>(null);
+        const { containerRef, layout, canScrollLeft, canScrollRight, scrollBy, scrollToChild } =
+            useScrollRail();
 
-        const [canScrollLeft, setCanScrollLeft] = useState(false);
-        const [canScrollRight, setCanScrollRight] = useState(false);
+        useImperativeHandle(
+            ref,
+            () => ({
+                scrollToChild(index: number) {
+                    scrollToChild(index);
+                },
+            }),
+            [scrollToChild]
+        );
 
-        const update = () => {
-            const el = scrollRef.current;
-            if (!el) return;
+        useEffect(() => {
+            if (!onLayoutChange || !layout) return;
+            onLayoutChange(layout);
+        }, [layout, onLayoutChange]);
 
-            const maxScroll = el.scrollWidth - el.clientWidth;
+        const handleWheel = useCallback(
+            (event: React.WheelEvent<HTMLDivElement>) => {
+                const container = containerRef.current;
+                if (!container) return;
 
-            setCanScrollLeft(el.scrollLeft > 1);
-            setCanScrollRight(el.scrollLeft < maxScroll - 1);
-
-            if (!onLayoutChange) return;
-
-            const containerRect = el.getBoundingClientRect();
-            const rects = Array.from(el.children).map((child) => {
-                const r = (child as HTMLElement).getBoundingClientRect();
-                return {
-                    x: r.left - containerRect.left + el.scrollLeft,
-                    width: r.width,
-                };
-            });
-
-            onLayoutChange({
-                scrollLeft: el.scrollLeft,
-                containerWidth: el.clientWidth,
-                childrenRects: rects,
-            });
-        };
-
-        useLayoutEffect(() => {
-            update();
-            const el = scrollRef.current;
-
-            const handleResize = () => {
-                update();
-            };
-
-            window.addEventListener('resize', handleResize);
-            el?.addEventListener('scroll', update);
-
-            return () => {
-                window.removeEventListener('resize', handleResize);
-                el?.removeEventListener('scroll', update);
-            };
-        }, []);
-
-        useImperativeHandle(ref, () => ({
-            scrollToChild(index: number) {
-                const el = scrollRef.current;
-                if (!el) return;
-
-                const child = el.children[index] as HTMLElement | undefined;
-                if (!child) return;
-
-                const rect = child.getBoundingClientRect();
-                const containerRect = el.getBoundingClientRect();
-
-                const offsetLeft = rect.left - containerRect.left;
-                const offsetRight = offsetLeft + rect.width;
-
-                if (offsetLeft < 0) {
-                    el.scrollBy({ left: offsetLeft - 8, behavior: 'smooth' });
+                if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
                     return;
                 }
 
-                if (offsetRight > el.clientWidth) {
-                    const diff = offsetRight - el.clientWidth;
-                    el.scrollBy({ left: diff + 8, behavior: 'smooth' });
-                }
+                container.scrollLeft += event.deltaY * 0.7;
             },
-        }));
+            [containerRef]
+        );
 
-        const handleWheel = (e: React.WheelEvent) => {
-            const el = scrollRef.current;
-            if (!el) return;
+        const handleArrowClick = (direction: 'left' | 'right') => {
+            const container = containerRef.current;
+            if (!container) return;
 
-            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                el.scrollLeft += e.deltaY * 0.7;
-            }
-        };
-
-        const scroll = (dir: 'left' | 'right') => {
-            const el = scrollRef.current;
-            if (!el) return;
-
-            const amount = el.clientWidth * 0.5;
-            el.scrollBy({
-                left: dir === 'left' ? -amount : amount,
-                behavior: 'smooth',
-            });
+            const amount = container.clientWidth * 0.5;
+            scrollBy(direction === 'left' ? -amount : amount);
         };
 
         return (
@@ -121,7 +62,7 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                     <ChevronButton
                         direction="left"
                         disabled={!canScrollLeft}
-                        onClick={() => scroll('left')}
+                        onClick={() => handleArrowClick('left')}
                     />
                 </div>
 
@@ -131,7 +72,7 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                     )}
 
                     <div
-                        ref={scrollRef}
+                        ref={containerRef}
                         onWheel={handleWheel}
                         className="scroll-hide flex w-full gap-2 overflow-x-auto py-1"
                     >
@@ -147,12 +88,14 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                     <ChevronButton
                         direction="right"
                         disabled={!canScrollRight}
-                        onClick={() => scroll('right')}
+                        onClick={() => handleArrowClick('right')}
                     />
                 </div>
             </div>
         );
     }
 );
+
+ScrollRail.displayName = 'ScrollRail';
 
 export default ScrollRail;

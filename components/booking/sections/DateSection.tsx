@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import ScrollRail, { ScrollRailHandle } from '@/components/ui/scroll/ScrollRail';
 import DatePill from '@/components/ui/pill/DatePill';
 import { BookingDate } from '@/types/booking';
-import { useMonthLabelPositions } from '@/hooks/useMonthLabelPositions';
-import type { RailLayoutState } from '@/hooks/useMonthLabels';
+import { useMonthLabels } from '@/hooks/useMonthLabels';
+import type { RailLayoutState } from '@/hooks/useScrollRail';
 
 type DateSectionProps = {
     dates: BookingDate[];
@@ -15,26 +15,44 @@ type DateSectionProps = {
 
 const DESKTOP_OFFSET = 56;
 const COLLISION_THRESHOLD = 40;
+const DESKTOP_BREAKPOINT = 768;
 
 export default function DateSection({ dates, selectedDate, onSelectDate }: DateSectionProps) {
     const [layout, setLayout] = useState<RailLayoutState | null>(null);
     const [anchorX, setAnchorX] = useState<number | null>(null);
+    const [isDesktop, setIsDesktop] = useState(false);
 
     const railRef = useRef<ScrollRailHandle>(null);
-    const isDesktop = typeof window !== 'undefined' ? window.innerWidth >= 768 : false;
+
+    useEffect(() => {
+        const updateViewport = () => {
+            if (typeof window === 'undefined') return;
+            setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+        };
+
+        updateViewport();
+        window.addEventListener('resize', updateViewport);
+
+        return () => {
+            window.removeEventListener('resize', updateViewport);
+        };
+    }, []);
 
     useEffect(() => {
         if (!layout) return;
+        if (anchorX != null) return;
+        if (layout.childrenRects.length === 0) return;
 
-        if (anchorX == null && layout.childrenRects.length > 0) {
-            const firstRect = layout.childrenRects[0];
-            let ax = firstRect.x - layout.scrollLeft;
-            if (isDesktop) ax += DESKTOP_OFFSET;
-            setAnchorX(ax);
+        const firstRect = layout.childrenRects[0];
+        let nextAnchorX = firstRect.x - layout.scrollLeft;
+        if (isDesktop) {
+            nextAnchorX += DESKTOP_OFFSET;
         }
+
+        setAnchorX(nextAnchorX);
     }, [layout, anchorX, isDesktop]);
 
-    const { primaryIndex, secondaryIndex } = useMonthLabelPositions(dates, layout);
+    const { primaryIndex, secondaryIndex } = useMonthLabels(dates, layout);
 
     const primaryMonth = dates[primaryIndex]?.monthLabel ?? '';
     let secondaryMonth = '';
@@ -75,7 +93,12 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
                 )}
             </div>
 
-            <ScrollRail ref={railRef} onLayoutChange={setLayout}>
+            <ScrollRail
+                ref={railRef}
+                onLayoutChange={(nextLayout) => {
+                    setLayout(nextLayout);
+                }}
+            >
                 {dates.map((item, index) => {
                     const isSelected =
                         selectedDate != null && selectedDate.getTime() === item.date.getTime();

@@ -2,19 +2,12 @@
 
 import { useMemo } from 'react';
 import { BookingDate } from '@/types/booking';
+import type { RailLayoutState } from '@/hooks/useScrollRail';
 
-export type RailLayoutState = {
-    scrollLeft: number;
-    containerWidth: number;
-    childrenRects: { x: number; width: number }[];
-};
-
-type MonthLabelIndices = {
+export type MonthLabelIndices = {
     primaryIndex: number;
     secondaryIndex: number | null;
 };
-
-const MIN_VISIBILITY_OFFSET = 10;
 
 export function useMonthLabels(
     dates: BookingDate[],
@@ -31,31 +24,51 @@ export function useMonthLabels(
             return { primaryIndex: 0, secondaryIndex: null };
         }
 
-        const firstVisibleIndex = childrenRects.findIndex((rect) => {
-            const left = rect.x - scrollLeft;
-            const right = left + rect.width;
-            return right > 0;
+        const markers: { index: number; x: number }[] = [];
+
+        dates.forEach((item, index) => {
+            if (item.date.getDate() === 1) {
+                markers.push({
+                    index,
+                    x: childrenRects[index]?.x ?? 0,
+                });
+            }
         });
 
-        const primaryIndex =
-            firstVisibleIndex === -1 ? 0 : Math.min(firstVisibleIndex, dates.length - 1);
-
-        const nextMonthIndex = dates.findIndex((date, index) => {
-            if (index <= primaryIndex) return false;
-            return date.date.getDate() === 1;
-        });
-
-        if (nextMonthIndex === -1 || nextMonthIndex >= childrenRects.length) {
-            return { primaryIndex, secondaryIndex: null };
+        if (markers.length === 0 || markers[0].index !== 0) {
+            markers.unshift({
+                index: 0,
+                x: childrenRects[0]?.x ?? 0,
+            });
         }
 
-        const rect = childrenRects[nextMonthIndex];
-        const viewX = rect.x - scrollLeft;
+        const visibleStart = scrollLeft;
+        let primaryIndex = markers[0].index;
 
-        if (viewX < MIN_VISIBILITY_OFFSET || viewX > containerWidth - MIN_VISIBILITY_OFFSET) {
-            return { primaryIndex, secondaryIndex: null };
+        for (const marker of markers) {
+            if (marker.x <= visibleStart) {
+                primaryIndex = marker.index;
+            }
         }
 
-        return { primaryIndex, secondaryIndex: nextMonthIndex };
+        let secondaryIndex: number | null = null;
+        const primaryMarkerIdx = markers.findIndex((marker) => marker.index === primaryIndex);
+
+        if (primaryMarkerIdx >= 0) {
+            for (let i = primaryMarkerIdx + 1; i < markers.length; i++) {
+                const marker = markers[i];
+                const left = marker.x - scrollLeft;
+
+                if (left > 0 && left < containerWidth) {
+                    secondaryIndex = marker.index;
+                    break;
+                }
+            }
+        }
+
+        return {
+            primaryIndex,
+            secondaryIndex,
+        };
     }, [dates, layout]);
 }
