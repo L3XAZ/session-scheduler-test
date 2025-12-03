@@ -1,12 +1,14 @@
 export type BookingDate = {
+    id: string;
     date: Date;
     dayLabel: string;
     dateLabel: string;
-    monthLabel: string; // добавили
+    monthLabel: string;
     isToday: boolean;
 };
 
 export type TimeSlot = {
+    id: string;
     time: Date;
 };
 

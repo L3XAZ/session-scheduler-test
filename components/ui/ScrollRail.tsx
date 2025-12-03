@@ -123,9 +123,12 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                 </div>
 
                 <div ref={containerRef} className="relative w-full overflow-hidden">
-                    {canScrollLeft && (
-                        <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-[40px] bg-gradient-to-r from-white/85 via-white/40 to-transparent md:w-[60px]" />
-                    )}
+                    {canScrollLeft ? (
+                        <div
+                            key="fade-left"
+                            className="pointer-events-none absolute left-0 top-0 z-20 h-full w-[40px] bg-gradient-to-r from-white/85 via-white/40 to-transparent md:w-[60px]"
+                        />
+                    ) : null}
 
                     <div
                         ref={scrollRef}
@@ -135,9 +138,12 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                         {children}
                     </div>
 
-                    {canScrollRight && (
-                        <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-[40px] bg-gradient-to-l from-white/85 via-white/40 to-transparent md:w-[60px]" />
-                    )}
+                    {canScrollRight ? (
+                        <div
+                            key="fade-right"
+                            className="pointer-events-none absolute right-0 top-0 z-20 h-full w-[40px] bg-gradient-to-l from-white/85 via-white/40 to-transparent md:w-[60px]"
+                        />
+                    ) : null}
                 </div>
 
                 <div className="relative z-30 ml-6 hidden md:flex">

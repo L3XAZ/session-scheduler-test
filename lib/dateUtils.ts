@@ -1,6 +1,7 @@
 import {
     addDays,
     addMinutes,
+    format,
     isAfter,
     isBefore,
     isSameDay,
@@ -19,10 +20,11 @@ export function generateDates(start: Date, weeks: number): BookingDate[] {
         const current = addDays(today, i);
 
         dates.push({
+            id: format(current, 'yyyy-MM-dd'),
             date: current,
-            dayLabel: current.toLocaleDateString('en-US', { weekday: 'short' }),
-            dateLabel: current.getDate().toString(),
-            monthLabel: current.toLocaleDateString('en-US', { month: 'short' }),
+            dayLabel: format(current, 'eee'),
+            dateLabel: format(current, 'd'),
+            monthLabel: format(current, 'MMM'),
             isToday: isSameDay(current, today),
         });
     }
@@ -45,7 +47,10 @@ export function generateTimeSlots(date: Date, now: Date): TimeSlot[] {
         const isPast = isSameDay(date, now) && !isAfter(cursor, now);
 
         if (!isPast) {
-            slots.push({ time: cursor });
+            slots.push({
+                id: format(cursor, 'HH:mm'),
+                time: cursor,
+            });
         }
 
         cursor = addMinutes(cursor, 15);
