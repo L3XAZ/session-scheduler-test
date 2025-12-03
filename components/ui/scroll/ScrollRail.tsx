@@ -2,8 +2,8 @@
 
 import { forwardRef, ReactNode, useCallback, useEffect, useImperativeHandle } from 'react';
 import ChevronButton from '@/components/ui/buttons/ChevronButton';
-import type { RailLayoutState } from '@/hooks/useScrollRail';
-import { useScrollRail } from '@/hooks/useScrollRail';
+import type { RailLayoutState } from '@/components/ui/scroll/useScrollRail';
+import { useScrollRail } from '@/components/ui/scroll/useScrollRail';
 
 interface ScrollRailProps {
     children: ReactNode;

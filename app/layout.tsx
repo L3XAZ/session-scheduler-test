@@ -1,7 +1,8 @@
 import './globals.css';
+import type { Metadata } from 'next';
 import { kaiseiTokumin, poppins } from './fonts';
 
-export const metadata = {
+export const metadata: Metadata = {
     title: 'Session Scheduler',
     description: 'Test assignment',
 };

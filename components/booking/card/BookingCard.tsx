@@ -1,10 +1,11 @@
 'use client';
 
 import BookingCardHeader from './BookingCardHeader';
-import DateSection from './DateSection';
-import TimeSection from './TimeSection';
-import ConfirmBar from './ConfirmBar';
+import DateSection from '../sections/DateSection';
+import TimeSection from '../sections/TimeSection';
+import ConfirmBar from '../sections/ConfirmBar';
 import { BookingDate, TimeSlot } from '@/types/booking';
+import { useMemo } from 'react';
 
 type BookingCardProps = {
     dates: BookingDate[];
@@ -25,7 +26,12 @@ export default function BookingCard({
     onSelectTime,
     onConfirm,
 }: BookingCardProps) {
-    const isEnabled = Boolean(selectedDate && selectedTime);
+    const isEnabled = useMemo(
+        () => Boolean(selectedDate && selectedTime),
+        [selectedDate, selectedTime]
+    );
+
+    const hasSelectedDate = selectedDate !== null;
 
     return (
         <section className="flex min-h-0 flex-1 flex-col font-poppins">
@@ -41,7 +47,7 @@ export default function BookingCard({
                 <TimeSection
                     timeSlots={timeSlots}
                     selectedTime={selectedTime}
-                    hasSelectedDate={Boolean(selectedDate)}
+                    hasSelectedDate={hasSelectedDate}
                     onSelectTime={onSelectTime}
                 />
             </div>

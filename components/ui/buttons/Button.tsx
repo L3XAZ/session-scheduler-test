@@ -4,21 +4,22 @@ import { ButtonHTMLAttributes } from 'react';
 
 type Variant = 'primary' | 'icon';
 
-interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: Variant;
     fullWidth?: boolean;
+    className?: string;
 }
 
 export default function Button({
     variant = 'primary',
-    fullWidth,
-    disabled,
+    fullWidth = false,
+    disabled = false,
     className,
     children,
     ...rest
-}: Props) {
+}: ButtonProps) {
     const base =
-        'inline-flex items-center justify-center rounded-pill font-poppins text-[16px] font-semibold leading-none tracking-[0.03em] transition';
+        'inline-flex items-center justify-center rounded-pill font-poppins text-[16px] font-semibold leading-none tracking-[0.03em] transition select-none';
 
     const width = fullWidth ? 'w-full' : '';
 
@@ -33,12 +34,10 @@ export default function Button({
 
     const padding = variant === 'primary' ? 'h-[60px] px-8' : 'h-8 w-8 p-0';
 
+    const composed = `${base} ${width} ${palette} ${padding} ${className ?? ''}`;
+
     return (
-        <button
-            disabled={disabled}
-            className={`${base} ${width} ${palette} ${padding} ${className ?? ''}`}
-            {...rest}
-        >
+        <button disabled={disabled} className={composed} {...rest}>
             {children}
         </button>
     );

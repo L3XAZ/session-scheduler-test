@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import ScrollRail, { ScrollRailHandle } from '@/components/ui/scroll/ScrollRail';
 import TimePill from '@/components/ui/pill/TimePill';
 import { TimeSlot } from '@/types/booking';
@@ -23,12 +23,15 @@ export default function TimeSection({
 
     const times = useMemo(() => timeSlots.map((slot) => slot.time), [timeSlots]);
 
-    const handleSelect = useCallback(
-        (time: Date, index: number) => {
-            onSelectTime(time);
-            railRef.current?.scrollToChild(index);
-        },
-        [onSelectTime]
+    const clickHandlers = useMemo(
+        () =>
+            times.map((time, index) => {
+                return () => {
+                    onSelectTime(time);
+                    railRef.current?.scrollToChild(index);
+                };
+            }),
+        [times, onSelectTime]
     );
 
     if (!hasSelectedDate) {
@@ -58,7 +61,7 @@ export default function TimeSection({
                         key={time.toISOString()}
                         time={format12h(time)}
                         selected={isSelected}
-                        onClick={() => handleSelect(time, index)}
+                        onClick={clickHandlers[index]}
                     />
                 );
             })}

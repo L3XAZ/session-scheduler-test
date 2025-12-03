@@ -1,15 +1,16 @@
 'use client';
 
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes, memo } from 'react';
 import Pill from './Pill';
 
-type Props = {
+type DatePillProps = {
     day: string;
     date: string;
     selected?: boolean;
-} & ButtonHTMLAttributes<HTMLButtonElement>;
+    className?: string;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'>;
 
-export default function DatePill({ day, date, selected, className, ...rest }: Props) {
+function DatePill({ day, date, selected = false, className, ...rest }: DatePillProps) {
     const layout =
         'flex h-[64px] w-[64px] flex-none flex-col items-center justify-center rounded-sm';
 
@@ -20,3 +21,5 @@ export default function DatePill({ day, date, selected, className, ...rest }: Pr
         </Pill>
     );
 }
+
+export default memo(DatePill);

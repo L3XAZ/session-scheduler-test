@@ -10,16 +10,18 @@ import {
     startOfDay,
 } from 'date-fns';
 import { BookingDate, TimeSlot } from '@/types/booking';
+import { WORKING_HOURS } from '@/lib/config';
 
 export function generateDates(start: Date, weeks: number): BookingDate[] {
-    const dates: BookingDate[] = [];
-    const totalDays = weeks * 7;
     const today = startOfDay(start);
+    const totalDays = weeks * 7;
+
+    const result: BookingDate[] = [];
 
     for (let i = 0; i <= totalDays; i++) {
         const current = addDays(today, i);
 
-        dates.push({
+        result.push({
             id: format(current, 'yyyy-MM-dd'),
             date: current,
             dayLabel: format(current, 'eee'),
@@ -29,21 +31,20 @@ export function generateDates(start: Date, weeks: number): BookingDate[] {
         });
     }
 
-    return dates;
+    return result;
 }
 
-const WORK_START_HOUR = 9;
-const WORK_END_HOUR = 18;
-
 export function generateTimeSlots(date: Date, now: Date): TimeSlot[] {
+    const { start, end, stepMinutes } = WORKING_HOURS;
+
+    const startOfWork = setMinutes(setHours(date, start), 0);
+    const endOfWork = setMinutes(setHours(date, end), 0);
+
     const slots: TimeSlot[] = [];
 
-    const dayStart = setMinutes(setHours(date, WORK_START_HOUR), 0);
-    const dayEnd = setMinutes(setHours(date, WORK_END_HOUR), 0);
+    let cursor = startOfWork;
 
-    let cursor = dayStart;
-
-    while (isBefore(cursor, dayEnd)) {
+    while (isBefore(cursor, endOfWork)) {
         const isPast = isSameDay(date, now) && !isAfter(cursor, now);
 
         if (!isPast) {
@@ -53,7 +54,7 @@ export function generateTimeSlots(date: Date, now: Date): TimeSlot[] {
             });
         }
 
-        cursor = addMinutes(cursor, 15);
+        cursor = addMinutes(cursor, stepMinutes);
     }
 
     return slots;

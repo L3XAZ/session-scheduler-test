@@ -5,7 +5,7 @@ import { startOfDay } from 'date-fns';
 import DesktopShell from './layout/DesktopShell';
 import MobileShell from './layout/MobileShell';
 import Backdrop from '@/components/booking/layout/Backdrop';
-import BookingCard from '@/components/booking/sections/BookingCard';
+import BookingCard from '@/components/booking/card/BookingCard';
 import { generateDates, generateTimeSlots } from '@/lib/dateUtils';
 
 export default function BookingPage() {
@@ -17,7 +17,8 @@ export default function BookingPage() {
 
     const timeSlots = useMemo(() => {
         if (!selectedDate) return [];
-        return generateTimeSlots(selectedDate, new Date());
+        const now = new Date();
+        return generateTimeSlots(selectedDate, now);
     }, [selectedDate]);
 
     const handleSelectDate = useCallback((date: Date) => {
@@ -36,15 +37,26 @@ export default function BookingPage() {
         console.log({ timestamp });
     }, [selectedDate, selectedTime]);
 
-    const bookingCardProps = {
-        dates,
-        timeSlots,
-        selectedDate,
-        selectedTime,
-        onSelectDate: handleSelectDate,
-        onSelectTime: handleSelectTime,
-        onConfirm: handleConfirm,
-    };
+    const bookingCardProps = useMemo(
+        () => ({
+            dates,
+            timeSlots,
+            selectedDate,
+            selectedTime,
+            onSelectDate: handleSelectDate,
+            onSelectTime: handleSelectTime,
+            onConfirm: handleConfirm,
+        }),
+        [
+            dates,
+            timeSlots,
+            selectedDate,
+            selectedTime,
+            handleSelectDate,
+            handleSelectTime,
+            handleConfirm,
+        ]
+    );
 
     return (
         <main className="relative min-h-screen overflow-hidden bg-brand-primary">

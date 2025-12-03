@@ -1,14 +1,15 @@
 'use client';
 
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes, memo } from 'react';
 import Pill from './Pill';
 
-type Props = {
+type TimePillProps = {
     time: string;
     selected?: boolean;
-} & ButtonHTMLAttributes<HTMLButtonElement>;
+    className?: string;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'>;
 
-export default function TimePill({ time, selected, className, ...rest }: Props) {
+function TimePill({ time, selected = false, className, ...rest }: TimePillProps) {
     const layout =
         'inline-flex h-[45px] w-[81px] flex-none items-center justify-center whitespace-nowrap rounded-pill px-4';
 
@@ -18,3 +19,5 @@ export default function TimePill({ time, selected, className, ...rest }: Props) 
         </Pill>
     );
 }
+
+export default memo(TimePill);

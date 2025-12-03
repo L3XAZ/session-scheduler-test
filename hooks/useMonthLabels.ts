@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { BookingDate } from '@/types/booking';
-import type { RailLayoutState } from '@/hooks/useScrollRail';
+import type { RailLayoutState } from '@/components/ui/scroll/useScrollRail';
 
 export type MonthLabelIndices = {
     primaryIndex: number;

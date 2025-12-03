@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import CircleAccent from '@/components/ui/primitives/CircleAccent';
-import { STYLIST_IMG } from '../constants';
+import { STYLIST_IMG } from '../bookingConstants';
 
 export default function BookingCardHeader() {
     return (

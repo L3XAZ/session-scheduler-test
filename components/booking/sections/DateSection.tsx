@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ScrollRail, { ScrollRailHandle } from '@/components/ui/scroll/ScrollRail';
 import DatePill from '@/components/ui/pill/DatePill';
 import { BookingDate } from '@/types/booking';
 import { useMonthLabels } from '@/hooks/useMonthLabels';
-import type { RailLayoutState } from '@/hooks/useScrollRail';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
+import type { RailLayoutState } from '@/components/ui/scroll/useScrollRail';
 
 type DateSectionProps = {
     dates: BookingDate[];
@@ -15,28 +16,13 @@ type DateSectionProps = {
 
 const DESKTOP_OFFSET = 56;
 const COLLISION_THRESHOLD = 40;
-const DESKTOP_BREAKPOINT = 768;
 
 export default function DateSection({ dates, selectedDate, onSelectDate }: DateSectionProps) {
     const [layout, setLayout] = useState<RailLayoutState | null>(null);
     const [anchorX, setAnchorX] = useState<number | null>(null);
-    const [isDesktop, setIsDesktop] = useState(false);
 
+    const isDesktop = useIsDesktop();
     const railRef = useRef<ScrollRailHandle>(null);
-
-    useEffect(() => {
-        const updateViewport = () => {
-            if (typeof window === 'undefined') return;
-            setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
-        };
-
-        updateViewport();
-        window.addEventListener('resize', updateViewport);
-
-        return () => {
-            window.removeEventListener('resize', updateViewport);
-        };
-    }, []);
 
     useEffect(() => {
         if (!layout) return;
@@ -44,39 +30,58 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
         if (layout.childrenRects.length === 0) return;
 
         const firstRect = layout.childrenRects[0];
-        let nextAnchorX = firstRect.x - layout.scrollLeft;
+        let x = firstRect.x - layout.scrollLeft;
+
         if (isDesktop) {
-            nextAnchorX += DESKTOP_OFFSET;
+            x += DESKTOP_OFFSET;
         }
 
-        setAnchorX(nextAnchorX);
+        setAnchorX(x);
     }, [layout, anchorX, isDesktop]);
 
     const { primaryIndex, secondaryIndex } = useMonthLabels(dates, layout);
 
     const primaryMonth = dates[primaryIndex]?.monthLabel ?? '';
-    let secondaryMonth = '';
-    let secondaryX: number | null = null;
 
-    if (layout && secondaryIndex != null && layout.childrenRects[secondaryIndex]) {
+    const { secondaryMonth, secondaryX } = useMemo(() => {
+        if (!layout || secondaryIndex == null) {
+            return { secondaryMonth: '', secondaryX: null };
+        }
+
         const rect = layout.childrenRects[secondaryIndex];
-        const rawX = rect.x - layout.scrollLeft;
+        if (!rect) {
+            return { secondaryMonth: '', secondaryX: null };
+        }
 
-        secondaryMonth = dates[secondaryIndex].monthLabel;
-        secondaryX = isDesktop ? rawX + DESKTOP_OFFSET : rawX;
-    }
+        const x = rect.x - layout.scrollLeft;
+        return {
+            secondaryMonth: dates[secondaryIndex].monthLabel,
+            secondaryX: isDesktop ? x + DESKTOP_OFFSET : x,
+        };
+    }, [layout, secondaryIndex, dates, isDesktop]);
 
     const hidePrimary =
         anchorX != null &&
         secondaryX != null &&
         Math.abs(secondaryX - anchorX) < COLLISION_THRESHOLD;
 
+    const clickHandlers = useMemo(
+        () =>
+            dates.map((item, index) => {
+                return () => {
+                    railRef.current?.scrollToChild(index);
+                    onSelectDate(item.date);
+                };
+            }),
+        [dates, onSelectDate]
+    );
+
     return (
         <div className="relative w-full">
             <div className="pointer-events-none absolute left-0 right-0 top-[-20px] z-20 h-[20px]">
                 {!hidePrimary && anchorX != null && primaryMonth && (
                     <div
-                        className="absolute font-poppins text-[14px] text-text-secondary transition-opacity duration-150"
+                        className="absolute font-poppins text-[14px] text-text-secondary"
                         style={{ transform: `translateX(${anchorX}px)` }}
                     >
                         {primaryMonth}
@@ -85,7 +90,7 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
 
                 {secondaryX != null && secondaryMonth && (
                     <div
-                        className="absolute font-poppins text-[14px] text-text-secondary transition-opacity duration-150"
+                        className="absolute font-poppins text-[14px] text-text-secondary"
                         style={{ transform: `translateX(${secondaryX}px)` }}
                     >
                         {secondaryMonth}
@@ -93,26 +98,18 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
                 )}
             </div>
 
-            <ScrollRail
-                ref={railRef}
-                onLayoutChange={(nextLayout) => {
-                    setLayout(nextLayout);
-                }}
-            >
+            <ScrollRail ref={railRef} onLayoutChange={setLayout}>
                 {dates.map((item, index) => {
                     const isSelected =
                         selectedDate != null && selectedDate.getTime() === item.date.getTime();
 
                     return (
                         <DatePill
-                            key={item.date.toISOString()}
+                            key={item.id}
                             day={item.dayLabel}
                             date={item.dateLabel}
                             selected={isSelected}
-                            onClick={() => {
-                                railRef.current?.scrollToChild(index);
-                                onSelectDate(item.date);
-                            }}
+                            onClick={clickHandlers[index]}
                         />
                     );
                 })}

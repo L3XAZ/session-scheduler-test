@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import CircleAccent from '@/components/ui/primitives/CircleAccent';
 import Chip from '@/components/ui/primitives/Chip';
-import { CLOCK_ICON, STYLIST_IMG } from '../constants';
+import { CLOCK_ICON, STYLIST_IMG } from '../bookingConstants';
 
-export default function MobileHeader() {
+export default function BookingHeaderMobile() {
     return (
         <header className="mobile-header-condensed relative h-[486px] overflow-hidden px-5 pt-10 font-poppins text-white">
             <div className="absolute right-[-10px] top-[55px] z-10">

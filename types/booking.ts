@@ -1,5 +1,8 @@
+export type ISODateString = string;
+export type TimeLabel = string;
+
 export type BookingDate = {
-    id: string;
+    id: ISODateString;
     date: Date;
     dayLabel: string;
     dateLabel: string;
@@ -8,16 +11,6 @@ export type BookingDate = {
 };
 
 export type TimeSlot = {
-    id: string;
+    id: TimeLabel;
     time: Date;
 };
-
-export type BookingSelection = {
-    date: Date | null;
-    time: Date | null;
-};
-
-export enum TimeFormat {
-    TWELVE_HOUR = '12h',
-    TWENTY_FOUR_HOUR = '24h',
-}
