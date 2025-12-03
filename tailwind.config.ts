@@ -26,6 +26,7 @@ module.exports = {
                     base: '#FFFFFF',
                     subtle: '#F7F7FC',
                     hover: '#F7F7FC',
+                    active: '#EEEAF7',
                 },
 
                 text: {
@@ -41,9 +42,16 @@ module.exports = {
                     dark: '#F14C6E',
                 },
 
+                state: {
+                    selectedBg: '#F7F7FC',
+                    selectedBorder: '#E2D9F3',
+                    selectedText: '#DE3A6B',
+                },
+
                 border: {
                     base: '#E8EBF4',
                     subtle: '#E8EBF4',
+                    default: '#D6D9E7',
                     header: 'rgba(255,255,255,0.4)',
                 },
             },
