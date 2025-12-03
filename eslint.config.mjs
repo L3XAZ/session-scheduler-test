@@ -10,51 +10,51 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 
 export default defineConfig([
-    ...nextVitals,
-    ...nextTs,
+  ...nextVitals,
+  ...nextTs,
 
-    {
-        plugins: {
-            '@typescript-eslint': tsPlugin,
-            react: reactPlugin,
-            'react-hooks': reactHooksPlugin,
-            import: importPlugin,
-        },
-
-        settings: {
-            react: {
-                version: 'detect',
-            },
-        },
-
-        languageOptions: {
-            parser: tsParser,
-            parserOptions: {
-                project: './tsconfig.json',
-            },
-        },
-
-        rules: {
-            'react/react-in-jsx-scope': 'off',
-            'react/jsx-uses-react': 'off',
-
-            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-
-            'react-hooks/rules-of-hooks': 'error',
-            'react-hooks/exhaustive-deps': 'warn',
-
-            'no-console': ['warn', { allow: ['warn', 'error'] }],
-
-            'import/order': [
-                'warn',
-                {
-                    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-                    'newlines-between': 'always',
-                    alphabetize: { order: 'asc', caseInsensitive: true },
-                },
-            ],
-        },
+  {
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+      react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
+      import: importPlugin,
     },
 
-    globalIgnores(['.next/**', 'out/**', 'build/**', 'eslint.config.mjs', 'postcss.config.mjs']),
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+    },
+
+    rules: {
+      'react/react-in-jsx-scope': 'off',
+      'react/jsx-uses-react': 'off',
+
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+
+      'import/order': [
+        'warn',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
+      ],
+    },
+  },
+
+  globalIgnores(['.next/**', 'out/**', 'build/**', 'eslint.config.mjs', 'postcss.config.js']),
 ]);

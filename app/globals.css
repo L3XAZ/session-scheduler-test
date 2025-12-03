@@ -3,42 +3,42 @@
 @tailwind utilities;
 
 @layer base {
-    html {
-        height: 100%;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+  html {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 @layer components {
-    .scroll-hide::-webkit-scrollbar {
-        display: none;
+  .scroll-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @media (max-height: 800px) {
+    .mobile-header-condensed {
+      height: 460px;
+    }
+  }
+
+  @media (max-height: 700px) {
+    .mobile-header-condensed {
+      height: 440px;
+    }
+  }
+
+  @media (max-height: 630px) {
+    .mobile-header-condensed {
+      height: 420px;
     }
 
-    .scroll-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    .hide-desktop-on-small-height {
+      display: none;
     }
-
-    @media (max-height: 800px) {
-        .mobile-header-condensed {
-            height: 460px;
-        }
-    }
-
-    @media (max-height: 700px) {
-        .mobile-header-condensed {
-            height: 440px;
-        }
-    }
-
-    @media (max-height: 630px) {
-        .mobile-header-condensed {
-            height: 420px;
-        }
-
-        .hide-desktop-on-small-height {
-            display: none;
-        }
-    }
+  }
 }
