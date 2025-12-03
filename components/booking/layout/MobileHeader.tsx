@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import CircleAccent from '@/components/ui/CircleAccent';
-import Chip from '@/components/ui/Chip';
+import CircleAccent from '@/components/ui/primitives/CircleAccent';
+import Chip from '@/components/ui/primitives/Chip';
 import { CLOCK_ICON, STYLIST_IMG } from '../constants';
 
 export default function MobileHeader() {

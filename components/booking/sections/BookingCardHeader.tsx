@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import CircleAccent from '@/components/ui/CircleAccent';
+import CircleAccent from '@/components/ui/primitives/CircleAccent';
 import { STYLIST_IMG } from '../constants';
 
 export default function BookingCardHeader() {

@@ -1,15 +1,17 @@
 'use client';
 
 import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
-import ChevronButton from './ChevronButton';
+import ChevronButton from '@/components/ui/buttons/ChevronButton';
+
+export type RailLayoutState = {
+    scrollLeft: number;
+    containerWidth: number;
+    childrenRects: { x: number; width: number }[];
+};
 
 interface ScrollRailProps {
     children: React.ReactNode;
-    onLayoutChange?: (data: {
-        scrollLeft: number;
-        containerWidth: number;
-        childrenRects: { x: number; width: number }[];
-    }) => void;
+    onLayoutChange?: (data: RailLayoutState) => void;
 }
 
 export type ScrollRailHandle = {
@@ -19,7 +21,6 @@ export type ScrollRailHandle = {
 const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
     ({ children, onLayoutChange }, ref) => {
         const scrollRef = useRef<HTMLDivElement>(null);
-        const containerRef = useRef<HTMLDivElement>(null);
 
         const [canScrollLeft, setCanScrollLeft] = useState(false);
         const [canScrollRight, setCanScrollRight] = useState(false);
@@ -35,9 +36,9 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
 
             if (!onLayoutChange) return;
 
+            const containerRect = el.getBoundingClientRect();
             const rects = Array.from(el.children).map((child) => {
                 const r = (child as HTMLElement).getBoundingClientRect();
-                const containerRect = el.getBoundingClientRect();
                 return {
                     x: r.left - containerRect.left + el.scrollLeft,
                     width: r.width,
@@ -55,11 +56,15 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
             update();
             const el = scrollRef.current;
 
-            window.addEventListener('resize', update);
+            const handleResize = () => {
+                update();
+            };
+
+            window.addEventListener('resize', handleResize);
             el?.addEventListener('scroll', update);
 
             return () => {
-                window.removeEventListener('resize', update);
+                window.removeEventListener('resize', handleResize);
                 el?.removeEventListener('scroll', update);
             };
         }, []);
@@ -69,7 +74,7 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                 const el = scrollRef.current;
                 if (!el) return;
 
-                const child = el.children[index] as HTMLElement;
+                const child = el.children[index] as HTMLElement | undefined;
                 if (!child) return;
 
                 const rect = child.getBoundingClientRect();
@@ -86,7 +91,6 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                 if (offsetRight > el.clientWidth) {
                     const diff = offsetRight - el.clientWidth;
                     el.scrollBy({ left: diff + 8, behavior: 'smooth' });
-                    return;
                 }
             },
         }));
@@ -97,7 +101,6 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
 
             if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
                 el.scrollLeft += e.deltaY * 0.7;
-                e.preventDefault();
             }
         };
 
@@ -122,13 +125,10 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                     />
                 </div>
 
-                <div ref={containerRef} className="relative w-full overflow-hidden">
-                    {canScrollLeft ? (
-                        <div
-                            key="fade-left"
-                            className="pointer-events-none absolute left-0 top-0 z-20 h-full w-[40px] bg-gradient-to-r from-white/85 via-white/40 to-transparent md:w-[60px]"
-                        />
-                    ) : null}
+                <div className="relative w-full overflow-hidden">
+                    {canScrollLeft && (
+                        <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-[40px] bg-gradient-to-r from-white/85 via-white/40 to-transparent md:w-[60px]" />
+                    )}
 
                     <div
                         ref={scrollRef}
@@ -138,12 +138,9 @@ const ScrollRail = forwardRef<ScrollRailHandle, ScrollRailProps>(
                         {children}
                     </div>
 
-                    {canScrollRight ? (
-                        <div
-                            key="fade-right"
-                            className="pointer-events-none absolute right-0 top-0 z-20 h-full w-[40px] bg-gradient-to-l from-white/85 via-white/40 to-transparent md:w-[60px]"
-                        />
-                    ) : null}
+                    {canScrollRight && (
+                        <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-[40px] bg-gradient-to-l from-white/85 via-white/40 to-transparent md:w-[60px]" />
+                    )}
                 </div>
 
                 <div className="relative z-30 ml-6 hidden md:flex">

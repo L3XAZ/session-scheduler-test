@@ -25,7 +25,7 @@ export default function BookingCard({
     onSelectTime,
     onConfirm,
 }: BookingCardProps) {
-    const isConfirmDisabled = !selectedDate || !selectedTime;
+    const isEnabled = Boolean(selectedDate && selectedTime);
 
     return (
         <section className="flex min-h-0 flex-1 flex-col font-poppins">
@@ -47,7 +47,7 @@ export default function BookingCard({
             </div>
 
             <div className="mt-auto pt-8">
-                <ConfirmBar disabled={isConfirmDisabled} onConfirm={onConfirm} />
+                <ConfirmBar enabled={isEnabled} onConfirm={onConfirm} />
             </div>
         </section>
     );

@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
-import ScrollRail, { ScrollRailHandle } from '@/components/ui/ScrollRail';
-import TimePill from '@/components/ui/TimePill';
+import ScrollRail, { ScrollRailHandle } from '@/components/ui/scroll/ScrollRail';
+import TimePill from '@/components/ui/pill/TimePill';
 import { TimeSlot } from '@/types/booking';
 import { format12h } from '@/lib/dateUtils';
 

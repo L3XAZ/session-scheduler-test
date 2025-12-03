@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import ScrollRail, { ScrollRailHandle } from '@/components/ui/ScrollRail';
-import DatePill from '@/components/ui/DatePill';
+import ScrollRail, { ScrollRailHandle } from '@/components/ui/scroll/ScrollRail';
+import DatePill from '@/components/ui/pill/DatePill';
 import { BookingDate } from '@/types/booking';
+import { useMonthLabelPositions } from '@/hooks/useMonthLabelPositions';
 import type { RailLayoutState } from '@/hooks/useMonthLabels';
-import { useMonthLabels } from '@/hooks/useMonthLabels';
 
 type DateSectionProps = {
     dates: BookingDate[];
@@ -21,7 +21,6 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
     const [anchorX, setAnchorX] = useState<number | null>(null);
 
     const railRef = useRef<ScrollRailHandle>(null);
-
     const isDesktop = typeof window !== 'undefined' ? window.innerWidth >= 768 : false;
 
     useEffect(() => {
@@ -30,35 +29,22 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
         if (anchorX == null && layout.childrenRects.length > 0) {
             const firstRect = layout.childrenRects[0];
             let ax = firstRect.x - layout.scrollLeft;
-
             if (isDesktop) ax += DESKTOP_OFFSET;
-
             setAnchorX(ax);
         }
     }, [layout, anchorX, isDesktop]);
 
-    const { primaryIndex, secondaryIndex } = useMonthLabels(dates, layout);
+    const { primaryIndex, secondaryIndex } = useMonthLabelPositions(dates, layout);
 
-    const primaryMonth =
-        dates.length > 0 && primaryIndex >= 0 && primaryIndex < dates.length
-            ? dates[primaryIndex].monthLabel
-            : '';
-
+    const primaryMonth = dates[primaryIndex]?.monthLabel ?? '';
     let secondaryMonth = '';
     let secondaryX: number | null = null;
 
-    if (
-        layout &&
-        secondaryIndex != null &&
-        secondaryIndex >= 0 &&
-        secondaryIndex < dates.length &&
-        layout.childrenRects[secondaryIndex]
-    ) {
+    if (layout && secondaryIndex != null && layout.childrenRects[secondaryIndex]) {
         const rect = layout.childrenRects[secondaryIndex];
         const rawX = rect.x - layout.scrollLeft;
 
         secondaryMonth = dates[secondaryIndex].monthLabel;
-
         secondaryX = isDesktop ? rawX + DESKTOP_OFFSET : rawX;
     }
 
@@ -70,7 +56,7 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
     return (
         <div className="relative w-full">
             <div className="pointer-events-none absolute left-0 right-0 top-[-20px] z-20 h-[20px]">
-                {anchorX != null && primaryMonth && !hidePrimary && (
+                {!hidePrimary && anchorX != null && primaryMonth && (
                     <div
                         className="absolute font-poppins text-[14px] text-text-secondary transition-opacity duration-150"
                         style={{ transform: `translateX(${anchorX}px)` }}
@@ -96,7 +82,7 @@ export default function DateSection({ dates, selectedDate, onSelectDate }: DateS
 
                     return (
                         <DatePill
-                            key={item.id}
+                            key={item.date.toISOString()}
                             day={item.dayLabel}
                             date={item.dateLabel}
                             selected={isSelected}
